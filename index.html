@@ -349,8 +349,7 @@
         const memoList = document.getElementById('memo-list');
 
         // Data Management
-        let memos = JSON.parse(localStorage.getItem('memos')) || [];
-
+        let memos = JSON
         function saveMemos() {
             localStorage.setItem('memos', JSON.stringify(memos));
         }
@@ -415,7 +414,7 @@
             if (emptyMsg) emptyMsg.remove();
 
             memoList.prepend(createMemoElement(newMemo));
-            
+
             memoInput.value = '';
             memoInput.focus();
         }
