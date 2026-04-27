@@ -204,6 +204,47 @@
             stroke: var(--danger);
         }
 
+        .edit-btn {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: var(--transition-smooth);
+            opacity: 0.4;
+            margin-left: auto;
+        }
+
+        .memo-item:hover .edit-btn {
+            opacity: 1;
+        }
+
+        .edit-btn:hover {
+            background: hsla(210, 95%, 60%, 0.1);
+        }
+
+        .edit-btn svg {
+            width: 18px;
+            height: 18px;
+            stroke: var(--accent-secondary);
+        }
+
+        .edit-input {
+            flex: 1;
+            background: hsla(0, 0%, 0%, 0.3);
+            border: 1px solid var(--accent-primary);
+            border-radius: 10px;
+            padding: 6px 12px;
+            color: var(--text-main);
+            font-size: 1rem;
+            outline: none;
+            font-family: inherit;
+            margin-right: 10px;
+        }
+
         /* Check Button */
         .check-btn {
             background: transparent;
@@ -349,7 +390,7 @@
         const memoList = document.getElementById('memo-list');
 
         // Data Management
-        let memos = JSON
+        let memos = JSON.parse(localStorage.getItem('memos')) || [];
         function saveMemos() {
             localStorage.setItem('memos', JSON.stringify(memos));
         }
@@ -375,6 +416,12 @@
                     </svg>
                 </button>
                 <div class="memo-content ${memo.completed ? 'completed' : ''}">${escapeHTML(memo.text)}</div>
+                <button class="edit-btn" onclick="editMemo('${li.id}')" aria-label="수정">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                    </svg>
+                </button>
                 <button class="delete-btn" onclick="deleteMemo('${li.id}')" aria-label="삭제">
                     <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <polyline points="3 6 5 6 21 6"></polyline>
@@ -445,6 +492,62 @@
 
             checkBtn.classList.toggle('completed');
             memoContent.classList.toggle('completed');
+        }
+
+        function editMemo(id) {
+            const el = document.getElementById(id);
+            const memo = memos.find(m => m.id === id);
+            if (!el || !memo) return;
+
+            const contentDiv = el.querySelector('.memo-content');
+            const editBtn = el.querySelector('.edit-btn');
+            
+            // Toggle to edit mode
+            const currentText = memo.text;
+            el.innerHTML = `
+                <button class="check-btn ${memo.completed ? 'completed' : ''}" disabled style="opacity: 0.5; cursor: default;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                </button>
+                <input type="text" class="edit-input" value="${escapeHTML(currentText)}">
+                <button class="edit-btn save-btn" onclick="saveEdit('${id}')" aria-label="저장">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                        <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                        <polyline points="7 3 7 8 15 8"></polyline>
+                    </svg>
+                </button>
+                <button class="delete-btn" onclick="renderMemos()" aria-label="취소">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            `;
+
+            const input = el.querySelector('.edit-input');
+            input.focus();
+            input.setSelectionRange(input.value.length, input.value.length);
+
+            input.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') saveEdit(id);
+            });
+        }
+
+        function saveEdit(id) {
+            const el = document.getElementById(id);
+            const input = el.querySelector('.edit-input');
+            const newText = input.value.trim();
+            
+            if (newText) {
+                const memo = memos.find(m => m.id === id);
+                if (memo) {
+                    memo.text = newText;
+                    saveMemos();
+                }
+            }
+            renderMemos();
         }
 
         function escapeHTML(str) {
