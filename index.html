@@ -383,7 +383,16 @@
         document.getElementById('add-btn').addEventListener('click', addMemo);
         memoInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') addMemo(); });
 
-        _supabase.auth.onAuthStateChange(handleAuthStateChange);
+        async function init() {
+            // 1. 페이지 로드 시 현재 세션(로그인 상태)을 즉시 확인
+            const { data: { session } } = await _supabase.auth.getSession();
+            handleAuthStateChange('INITIAL', session);
+
+            // 2. 로그인/로그아웃 상태 변화를 감시
+            _supabase.auth.onAuthStateChange(handleAuthStateChange);
+        }
+
+        init();
     </script>
 </body>
 
