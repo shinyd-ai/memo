@@ -4,13 +4,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Premium Memo - 간단하고 아름다운 메모장</title>
-    <meta name="description" content="세련된 디자인의 현대적인 웹 메모 애플리케이션입니다.">
+    <title>Premium Memo - Google Auth</title>
+    <meta name="description" content="구글 로그인으로 나만의 메모를 관리하세요.">
 
     <!-- Google Fonts: Outfit -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+
+    <!-- Supabase JS SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
         :root {
@@ -72,482 +75,300 @@
             letter-spacing: -0.02em;
         }
 
-        header p {
-            color: var(--text-dim);
-            font-size: 1rem;
-            font-weight: 300;
-        }
-
-        /* Input Area */
-        .input-card {
-            background: var(--card-bg);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid var(--glass-border);
-            border-radius: 24px;
-            padding: 24px;
-            box-shadow: var(--glass-shadow);
-            margin-bottom: 32px;
-            animation: fadeInUp 0.8s ease-out 0.2s backwards;
-        }
-
-        .input-group {
+        /* User Profile Area */
+        .user-profile {
             display: flex;
-            gap: 12px;
-        }
-
-        input[type="text"] {
-            flex: 1;
-            background: hsla(0, 0%, 0%, 0.2);
-            border: 1px solid var(--glass-border);
-            border-radius: 14px;
-            padding: 14px 20px;
-            color: var(--text-main);
-            font-size: 1rem;
-            outline: none;
-            transition: var(--transition-smooth);
-        }
-
-        input[type="text"]:focus {
-            border-color: var(--accent-primary);
-            background: hsla(0, 0%, 0%, 0.3);
-            box-shadow: 0 0 0 4px hsla(265, 85%, 65%, 0.15);
-        }
-
-        .add-btn {
-            background: var(--gradient-accent);
-            border: none;
-            border-radius: 14px;
-            width: 50px;
-            height: 50px;
-            display: flex;
+            align-items: center;
             justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            transition: var(--transition-smooth);
-            box-shadow: 0 4px 15px hsla(265, 85%, 65%, 0.3);
-        }
-
-        .add-btn:hover {
-            transform: scale(1.05) translateY(-2px);
-            box-shadow: 0 6px 20px hsla(265, 85%, 65%, 0.4);
-        }
-
-        .add-btn:active {
-            transform: scale(0.95);
-        }
-
-        .add-btn svg {
-            width: 24px;
-            height: 24px;
-            stroke: white;
-        }
-
-        /* Memo List */
-        #memo-list {
-            list-style: none;
-        }
-
-        .memo-item {
-            background: var(--card-bg);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
+            gap: 12px;
+            margin-top: 15px;
+            padding: 8px 16px;
+            background: hsla(0, 0%, 100%, 0.05);
+            border-radius: 50px;
             border: 1px solid var(--glass-border);
-            border-radius: 18px;
-            padding: 16px 20px;
-            margin-bottom: 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            animation: slideIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) backwards;
-            transition: var(--transition-smooth);
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
         }
 
-        .memo-item:hover {
-            transform: translateX(4px);
-            border-color: hsla(0, 0%, 100%, 0.2);
-            background: hsla(230, 25%, 18%, 0.8);
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 2px solid var(--accent-primary);
         }
 
-        .memo-content {
-            font-size: 1rem;
+        .user-name {
+            font-size: 0.9rem;
+            font-weight: 400;
             color: var(--text-main);
-            flex: 1;
-            margin-right: 15px;
-            word-break: break-all;
         }
 
-        .delete-btn {
+        .logout-btn {
             background: transparent;
             border: none;
+            color: var(--text-dim);
+            font-size: 0.8rem;
             cursor: pointer;
-            padding: 8px;
-            border-radius: 10px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            padding: 4px 8px;
+            border-radius: 4px;
             transition: var(--transition-smooth);
-            opacity: 0.4;
         }
 
-        .memo-item:hover .delete-btn {
-            opacity: 1;
-        }
-
-        .delete-btn:hover {
+        .logout-btn:hover {
+            color: var(--danger);
             background: hsla(0, 85%, 65%, 0.1);
         }
 
-        .delete-btn svg {
-            width: 18px;
-            height: 18px;
-            stroke: var(--danger);
-        }
-
-        .edit-btn {
-            background: transparent;
-            border: none;
-            cursor: pointer;
-            padding: 8px;
-            border-radius: 10px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            transition: var(--transition-smooth);
-            opacity: 0.4;
-            margin-left: auto;
-        }
-
-        .memo-item:hover .edit-btn {
-            opacity: 1;
-        }
-
-        .edit-btn:hover {
-            background: hsla(210, 95%, 60%, 0.1);
-        }
-
-        .edit-btn svg {
-            width: 18px;
-            height: 18px;
-            stroke: var(--accent-secondary);
-        }
-
-        .edit-input {
-            flex: 1;
-            background: hsla(0, 0%, 0%, 0.3);
-            border: 1px solid var(--accent-primary);
-            border-radius: 10px;
-            padding: 6px 12px;
-            color: var(--text-main);
-            font-size: 1rem;
-            outline: none;
-            font-family: inherit;
-            margin-right: 10px;
-        }
-
-        /* Check Button */
-        .check-btn {
-            background: transparent;
-            border: 2px solid var(--glass-border);
-            border-radius: 50%;
-            width: 24px;
-            height: 24px;
-            margin-right: 16px;
-            cursor: pointer;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            transition: var(--transition-smooth);
-            flex-shrink: 0;
-        }
-
-        .check-btn:hover {
-            border-color: var(--accent-primary);
-            background: hsla(265, 85%, 65%, 0.1);
-        }
-
-        .check-btn.completed {
-            background: var(--gradient-accent);
-            border-color: transparent;
-        }
-
-        .check-btn svg {
-            width: 14px;
-            height: 14px;
-            stroke: white;
-            opacity: 0;
-            transition: var(--transition-smooth);
-        }
-
-        .check-btn.completed svg {
-            opacity: 1;
-        }
-
-        .memo-content.completed {
-            text-decoration: line-through;
-            color: var(--text-dim);
-            opacity: 0.6;
-        }
-
-        /* Animations */
-        @keyframes fadeInDown {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateX(-10px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-
-        @keyframes slideOut {
-            to {
-                opacity: 0;
-                transform: translateX(20px) scale(0.95);
-            }
-        }
-
-        .removing {
-            animation: slideOut 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
-        }
-
-        /* Empty State */
-        .empty-state {
+        /* Login Screen */
+        .login-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 32px;
+            padding: 48px 32px;
             text-align: center;
-            padding: 40px 20px;
-            color: var(--text-dim);
-            font-weight: 300;
-            animation: fadeIn 1s ease-in;
+            box-shadow: var(--glass-shadow);
+            animation: fadeInUp 0.8s ease-out;
         }
 
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-
-            to {
-                opacity: 1;
-            }
+        .google-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            width: 100%;
+            background: white;
+            color: #1f1f1f;
+            border: none;
+            border-radius: 12px;
+            padding: 14px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            margin-top: 32px;
         }
+
+        .google-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(255, 255, 255, 0.2);
+        }
+
+        .google-btn svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        /* App Screens visibility */
+        #login-screen { display: none; }
+        #app-screen { display: none; }
+
+        /* Existing Styles (Minified/Simplified for brevity but kept functional) */
+        .input-card { background: var(--card-bg); backdrop-filter: blur(12px); border: 1px solid var(--glass-border); border-radius: 24px; padding: 24px; box-shadow: var(--glass-shadow); margin-bottom: 32px; }
+        .input-group { display: flex; gap: 12px; }
+        input[type="text"] { flex: 1; background: hsla(0, 0%, 0%, 0.2); border: 1px solid var(--glass-border); border-radius: 14px; padding: 14px 20px; color: var(--text-main); font-size: 1rem; outline: none; transition: var(--transition-smooth); }
+        input[type="text"]:focus { border-color: var(--accent-primary); }
+        .add-btn { background: var(--gradient-accent); border: none; border-radius: 14px; width: 50px; height: 50px; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: var(--transition-smooth); }
+        .memo-item { background: var(--card-bg); border: 1px solid var(--glass-border); border-radius: 18px; padding: 16px 20px; margin-bottom: 12px; display: flex; align-items: center; }
+        .memo-content { flex: 1; margin-right: 10px; word-break: break-all; }
+        .memo-content.completed { text-decoration: line-through; opacity: 0.6; }
+        .check-btn { width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--glass-border); background: transparent; margin-right: 16px; cursor: pointer; display: flex; justify-content: center; align-items: center; }
+        .check-btn.completed { background: var(--gradient-accent); border: none; }
+        .check-btn svg { width: 14px; height: 14px; stroke: white; opacity: 0; }
+        .check-btn.completed svg { opacity: 1; }
+        .actions { display: flex; gap: 4px; }
+        .edit-btn, .delete-btn { background: transparent; border: none; cursor: pointer; padding: 8px; border-radius: 10px; opacity: 0.4; }
+        .memo-item:hover .edit-btn, .memo-item:hover .delete-btn { opacity: 1; }
+        .edit-btn svg { width: 18px; height: 18px; stroke: var(--accent-secondary); }
+        .delete-btn svg { width: 18px; height: 18px; stroke: var(--danger); }
+        .empty-state { text-align: center; padding: 40px; color: var(--text-dim); }
+        .loader { width: 20px; height: 20px; border: 2px solid var(--accent-secondary); border-bottom-color: transparent; border-radius: 50%; display: inline-block; animation: rotation 1s linear infinite; }
+        @keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; } }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; } }
     </style>
 </head>
 
 <body>
 
     <div class="container">
-        <header>
-            <h1>Premium Memo</h1>
-            <p>66챌 짱!!!!</p>
-        </header>
-
-        <div class="input-card">
-            <div class="input-group">
-                <input type="text" id="memo-input" placeholder="새로운 메모를 입력하세요..." autocomplete="off">
-                <button class="add-btn" id="add-btn" aria-label="메모 추가">
-                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round"
-                        stroke-linejoin="round">
-                        <line x1="12" y1="5" x2="12" y2="19"></line>
-                        <line x1="5" y1="12" x2="19" y2="12"></line>
+        <!-- 1. Guest Login Screen -->
+        <div id="login-screen">
+            <header>
+                <h1>Premium Memo</h1>
+                <p>Cloud Sync with Google</p>
+            </header>
+            <div class="login-card">
+                <h2>환영합니다</h2>
+                <p style="color: var(--text-dim); margin-top: 8px;">메모를 안전하게 저장하려면 로그인이 필요합니다.</p>
+                <button class="google-btn" id="login-btn">
+                    <svg viewBox="0 0 48 48">
+                        <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"></path>
+                        <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"></path>
+                        <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"></path>
+                        <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"></path>
                     </svg>
+                    Google 계정으로 시작하기
                 </button>
             </div>
         </div>
 
-        <ul id="memo-list">
-            <!-- Memos will appear here -->
-        </ul>
+        <!-- 2. Main App Screen (Authenticated) -->
+        <div id="app-screen">
+            <header>
+                <h1>Premium Memo</h1>
+                <div class="user-profile" id="user-info">
+                    <img src="" alt="avatar" class="user-avatar" id="avatar">
+                    <span class="user-name" id="username">Loading...</span>
+                    <button class="logout-btn" id="logout-btn">로그아웃</button>
+                </div>
+            </header>
+
+            <div class="input-card">
+                <div class="input-group">
+                    <input type="text" id="memo-input" placeholder="새로운 메모를 입력하세요..." autocomplete="off">
+                    <button class="add-btn" id="add-btn" aria-label="메모 추가">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                    </button>
+                </div>
+            </div>
+
+            <ul id="memo-list">
+                <!-- Memos appear here -->
+            </ul>
+        </div>
     </div>
 
     <script>
-        const memoInput = document.getElementById('memo-input');
-        const addBtn = document.getElementById('add-btn');
-        const memoList = document.getElementById('memo-list');
+        const SUPABASE_URL = 'https://vnqnpfsyvxzvlhsvztqg.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZucW5wZnN5dnh6dmxoc3Z6dHFnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzczNDg0NDcsImV4cCI6MjA5MjkyNDQ0N30.-SPJXRk8z2pN-gYUoEPy1lfQIvLAZHlHF3LOKmIo7jE';
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // Data Management
-        let memos = JSON.parse(localStorage.getItem('memos')) || [];
-        function saveMemos() {
-            localStorage.setItem('memos', JSON.stringify(memos));
+        const loginScreen = document.getElementById('login-screen');
+        const appScreen = document.getElementById('app-screen');
+        const memoList = document.getElementById('memo-list');
+        const memoInput = document.getElementById('memo-input');
+
+        let currentUser = null;
+        let memos = [];
+
+        // --- AUTH LOGIC ---
+        async function signInWithGoogle() {
+            const { error } = await _supabase.auth.signInWithOAuth({
+                provider: 'google',
+            });
+            if (error) alert('로그인 중 오류가 발생했습니다: ' + error.message);
         }
 
-        // Initial empty state
-        function checkEmpty() {
-            if (memos.length === 0) {
-                memoList.innerHTML = `<div class="empty-state">아직 작성된 메모가 없습니다.</div>`;
-            } else if (memoList.querySelector('.empty-state')) {
-                memoList.querySelector('.empty-state').remove();
+        async function signOut() {
+            await _supabase.auth.signOut();
+        }
+
+        function handleAuthStateChange(event, session) {
+            if (session) {
+                currentUser = session.user;
+                showApp(currentUser);
+            } else {
+                currentUser = null;
+                showLogin();
             }
+        }
+
+        function showApp(user) {
+            loginScreen.style.display = 'none';
+            appScreen.style.display = 'block';
+            
+            document.getElementById('username').textContent = user.user_metadata.full_name || user.email;
+            document.getElementById('avatar').src = user.user_metadata.avatar_url || 'https://via.placeholder.com/32';
+            
+            fetchMemos();
+        }
+
+        function showLogin() {
+            loginScreen.style.display = 'block';
+            appScreen.style.display = 'none';
+        }
+
+        // --- DATA LOGIC ---
+        async function fetchMemos() {
+            memoList.innerHTML = '<div class="empty-state"><span class="loader"></span></div>';
+            
+            const { data, error } = await _supabase
+                .from('memos')
+                .select('*')
+                .eq('user_id', currentUser.id) // 본인 메모만 필터링
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                console.error(error);
+                memoList.innerHTML = '<div class="empty-state">데이터를 불러오지 못했습니다. (DB 설정을 확인하세요)</div>';
+                return;
+            }
+
+            memos = data;
+            renderMemos();
+        }
+
+        function renderMemos() {
+            memoList.innerHTML = memos.length ? '' : '<div class="empty-state">메모가 없습니다.</div>';
+            memos.forEach(memo => memoList.appendChild(createMemoElement(memo)));
         }
 
         function createMemoElement(memo) {
             const li = document.createElement('li');
             li.className = 'memo-item';
-            li.id = memo.id;
-
+            li.id = `memo-${memo.id}`;
             li.innerHTML = `
-                <button class="check-btn ${memo.completed ? 'completed' : ''}" onclick="toggleComplete('${li.id}')" aria-label="완료">
-                    <svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="20 6 9 17 4 12"></polyline>
-                    </svg>
+                <button class="check-btn ${memo.completed ? 'completed' : ''}" onclick="toggleComplete(${memo.id}, ${memo.completed})">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
                 </button>
                 <div class="memo-content ${memo.completed ? 'completed' : ''}">${escapeHTML(memo.text)}</div>
-                <button class="edit-btn" onclick="editMemo('${li.id}')" aria-label="수정">
-                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                    </svg>
-                </button>
-                <button class="delete-btn" onclick="deleteMemo('${li.id}')" aria-label="삭제">
-                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="3 6 5 6 21 6"></polyline>
-                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                        <line x1="10" y1="11" x2="10" y2="17"></line>
-                        <line x1="14" y1="11" x2="14" y2="17"></line>
-                    </svg>
-                </button>
+                <div class="actions">
+                    <button class="edit-btn" onclick="editMemo(${memo.id})"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+                    <button class="delete-btn" onclick="deleteMemo(${memo.id})"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
+                </div>
             `;
             return li;
         }
 
-        function renderMemos() {
-            memoList.innerHTML = '';
-            checkEmpty();
-            // Render in reverse order to show newest first (matches prepend logic)
-            [...memos].reverse().forEach(memo => {
-                memoList.appendChild(createMemoElement(memo));
-            });
-        }
-
-        function addMemo() {
+        async function addMemo() {
             const text = memoInput.value.trim();
             if (!text) return;
 
-            const newMemo = {
-                id: 'memo-' + Date.now(),
-                text: text,
-                completed: false
-            };
+            const { error } = await _supabase
+                .from('memos')
+                .insert([{ text, user_id: currentUser.id }]); // user_id 포함
 
-            memos.push(newMemo);
-            saveMemos();
-
-            // UI update
-            const emptyMsg = memoList.querySelector('.empty-state');
-            if (emptyMsg) emptyMsg.remove();
-
-            memoList.prepend(createMemoElement(newMemo));
-
-            memoInput.value = '';
-            memoInput.focus();
+            if (error) alert('저장 실패: ' + error.message);
+            else { memoInput.value = ''; fetchMemos(); }
         }
 
-        function deleteMemo(id) {
-            const el = document.getElementById(id);
-            if (!el) return;
-
-            el.classList.add('removing');
-            el.addEventListener('animationend', () => {
-                el.remove();
-                memos = memos.filter(m => m.id !== id);
-                saveMemos();
-                checkEmpty();
-            });
+        async function deleteMemo(id) {
+            const { error } = await _supabase.from('memos').delete().eq('id', id);
+            if (error) alert('삭제 실패');
+            else fetchMemos();
         }
 
-        function toggleComplete(id) {
-            const memo = memos.find(m => m.id === id);
-            if (!memo) return;
-
-            memo.completed = !memo.completed;
-            saveMemos();
-
-            const el = document.getElementById(id);
-            const checkBtn = el.querySelector('.check-btn');
-            const memoContent = el.querySelector('.memo-content');
-
-            checkBtn.classList.toggle('completed');
-            memoContent.classList.toggle('completed');
+        async function toggleComplete(id, status) {
+            await _supabase.from('memos').update({ completed: !status }).eq('id', id);
+            fetchMemos();
         }
 
         function editMemo(id) {
-            const el = document.getElementById(id);
             const memo = memos.find(m => m.id === id);
-            if (!el || !memo) return;
-
-            const contentDiv = el.querySelector('.memo-content');
-            const editBtn = el.querySelector('.edit-btn');
-            
-            // Toggle to edit mode
-            const currentText = memo.text;
+            const el = document.getElementById(`memo-${id}`);
             el.innerHTML = `
-                <button class="check-btn ${memo.completed ? 'completed' : ''}" disabled style="opacity: 0.5; cursor: default;">
-                    <svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="20 6 9 17 4 12"></polyline>
-                    </svg>
-                </button>
-                <input type="text" class="edit-input" value="${escapeHTML(currentText)}">
-                <button class="edit-btn save-btn" onclick="saveEdit('${id}')" aria-label="저장">
-                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
-                        <polyline points="17 21 17 13 7 13 7 21"></polyline>
-                        <polyline points="7 3 7 8 15 8"></polyline>
-                    </svg>
-                </button>
-                <button class="delete-btn" onclick="renderMemos()" aria-label="취소">
-                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="18" y1="6" x2="6" y2="18"></line>
-                        <line x1="6" y1="6" x2="18" y2="18"></line>
-                    </svg>
-                </button>
+                <input type="text" class="edit-input" id="edit-${id}" value="${escapeHTML(memo.text)}">
+                <button class="logout-btn" onclick="saveEdit(${id})">저장</button>
             `;
-
-            const input = el.querySelector('.edit-input');
-            input.focus();
-            input.setSelectionRange(input.value.length, input.value.length);
-
-            input.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') saveEdit(id);
-            });
+            document.getElementById(`edit-${id}`).focus();
         }
 
-        function saveEdit(id) {
-            const el = document.getElementById(id);
-            const input = el.querySelector('.edit-input');
-            const newText = input.value.trim();
-            
-            if (newText) {
-                const memo = memos.find(m => m.id === id);
-                if (memo) {
-                    memo.text = newText;
-                    saveMemos();
-                }
-            }
-            renderMemos();
+        async function saveEdit(id) {
+            const newText = document.getElementById(`edit-${id}`).value.trim();
+            if (newText) await _supabase.from('memos').update({ text: newText }).eq('id', id);
+            fetchMemos();
         }
 
         function escapeHTML(str) {
@@ -556,13 +377,13 @@
             return p.innerHTML;
         }
 
-        addBtn.addEventListener('click', addMemo);
-        memoInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') addMemo();
-        });
+        // --- INIT ---
+        document.getElementById('login-btn').addEventListener('click', signInWithGoogle);
+        document.getElementById('logout-btn').addEventListener('click', signOut);
+        document.getElementById('add-btn').addEventListener('click', addMemo);
+        memoInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') addMemo(); });
 
-        // Initialize
-        renderMemos();
+        _supabase.auth.onAuthStateChange(handleAuthStateChange);
     </script>
 </body>
 
